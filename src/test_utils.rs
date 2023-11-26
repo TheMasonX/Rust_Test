@@ -1,4 +1,3 @@
-
 /// Runs a test with a teardown function that is guaranteed to run
 pub fn run_test<T, U>(test: T, teardown: U)
 where
@@ -74,7 +73,7 @@ mod tests {
                     "input_string"
                 );
             },
-            "./test.txt",
+            "./test_run_file.txt",
             "input_string",
         );
     }
