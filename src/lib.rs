@@ -1,5 +1,88 @@
 //! Mostly just an exploration of the Rust language and modern CI/CD practices, but I'll use it to include some common/useful utilities as I write them.
 
+/// Testing utilities
+pub mod test_utils {
+
+    /// Runs a test with a teardown function that is guaranteed to run
+    pub fn run_test<T, U>(test: T, teardown: U)
+    where
+        T: FnOnce() + std::panic::UnwindSafe,
+        U: FnOnce(),
+    {
+        let result = std::panic::catch_unwind(test);
+
+        teardown();
+
+        assert!(result.is_ok())
+    }
+
+    /// Runs a test on a File with a teardown function that is guaranteed to delete the file after the test
+    ///
+    /// # Panics
+    ///
+    /// If the file cannot be opened
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use tmx_utils::test_utils::run_file_test;
+    /// use tmx_utils::string_ext::read_string;
+    /// use std::io::BufReader;
+    ///
+    /// run_file_test(
+    ///     |f| {
+    ///         assert_eq!(
+    ///             read_string(BufReader::new(f)).unwrap(),
+    ///             "input_string"
+    ///         );
+    ///     },
+    ///     "./test.txt", "input_string",
+    /// );
+    /// ```
+    pub fn run_file_test<T>(test: T, path: &str, contents: &str)
+    where
+        T: FnOnce(std::fs::File) + std::panic::UnwindSafe,
+    {
+        let teardown = || {
+            std::fs::remove_file(path).unwrap();
+        };
+
+        std::fs::write(path, contents).unwrap();
+        let file = match std::fs::File::open(path) {
+            Ok(f) => f,
+            Err(e) => {
+                teardown();
+                panic!(
+                    "Couldn't open {} after writing, deleting. Error: {:?}",
+                    path, e
+                )
+            }
+        };
+        run_test(|| test(file), teardown);
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use crate::string_ext;
+
+        use super::*;
+
+        #[test]
+        fn test_run_file_test() {
+            run_file_test(
+                |f| {
+                    assert_eq!(
+                        string_ext::read_string(std::io::BufReader::new(f)).unwrap(),
+                        "input_string"
+                    );
+                },
+                "./test.txt",
+                "input_string",
+            );
+        }
+    }
+}
+
 /// String Extensions
 pub mod string_ext {
     /// Declares a `Vec<String>` and casts string literals from `&str` to `String`
@@ -109,7 +192,7 @@ pub mod string_ext {
         string_val
     }
 
-    /// Reads a line from stdin and trims it. Returns an error if the line is empty or if an error is returned from `stdin().read_line()`.
+    /// Reads a line from `std::io::stdin().lock()` and trims it. Returns an error if the line is empty or if an error is returned from `read_line()`.
     ///
     /// # Examples
     ///
@@ -134,20 +217,18 @@ pub mod string_ext {
     ///
     /// ```
     /// # use tmx_utils::string_ext::read_string;
-    /// use std::fs::{File, write, remove_file};
+    /// use tmx_utils::test_utils::run_file_test;
     /// use std::io::BufReader;
-    /// let path = "./test.txt";
-    /// write(path, "  input_string    ").unwrap(); //Create a file with extra spaces
-    /// let file = match File::open(path) {
-    ///     Ok(f) => f,
-    ///     Err(e) => {
-    ///         remove_file(path).unwrap(); //Clean up before panicking
-    ///         panic!("Couldn't open {}, deleting: {:?}", path, e)
-    ///     }
-    /// };
-    /// let result = read_string(&mut BufReader::new(file));
-    /// remove_file(path).unwrap(); //Clean up before asserting
-    /// assert_eq!(result.unwrap(), "input_string");
+    ///
+    /// run_file_test(
+    ///     |f| {
+    ///         assert_eq!(
+    ///             read_string(BufReader::new(f)).unwrap(),
+    ///             "input_string"
+    ///         );
+    ///     },
+    ///     "./test.txt", "input_string",
+    /// );
     /// ```
     pub fn read_string<R>(mut reader: R) -> Result<String, std::io::Error>
     where
