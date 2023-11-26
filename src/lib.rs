@@ -36,7 +36,7 @@ pub mod test_utils {
     ///             "input_string"
     ///         );
     ///     },
-    ///     "./test.txt", "input_string",
+    ///     "./run_file_test.txt", "input_string",
     /// );
     /// ```
     pub fn run_file_test<T>(test: T, path: &str, contents: &str)
@@ -227,7 +227,7 @@ pub mod string_ext {
     ///             "input_string"
     ///         );
     ///     },
-    ///     "./test.txt", "input_string",
+    ///     "./read_string.txt", "input_string",
     /// );
     /// ```
     pub fn read_string<R>(mut reader: R) -> Result<String, std::io::Error>
@@ -282,7 +282,7 @@ pub mod string_ext {
         fn test_read_input() {
             use super::read_string;
             use std::fs::File;
-            let path = "./test.txt";
+            let path = "./test_read_input.txt";
             std::fs::write(path, "input_string").unwrap();
             let file = match File::open(path) {
                 Ok(f) => f,
