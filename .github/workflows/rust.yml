@@ -9,9 +9,14 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -26,9 +31,5 @@ jobs:
       run: cargo clippy --verbose -- -D warnings
     - name: Audit
       run: cargo audit
-
-    - name: Rust Code Coverage
-      # You may pin to the exact commit or the version.
-      # uses: Swatinem/fucov@304910a1829c88889a0b5671aa5ca7b1abbeebc0
-      uses: Swatinem/fucov@v1.0.0
-          
+    - name: Copy Docs
+      run: .\deploy_docs.bat
