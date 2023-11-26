@@ -1,4 +1,4 @@
-name: Rust-
+name: Rust-CI
 
 on:
   push:
@@ -26,3 +26,9 @@ jobs:
       run: cargo clippy --verbose -- -D warnings
     - name: Audit
       run: cargo audit
+
+    - name: Rust Code Coverage
+      # You may pin to the exact commit or the version.
+      # uses: Swatinem/fucov@304910a1829c88889a0b5671aa5ca7b1abbeebc0
+      uses: Swatinem/fucov@v1.0.0
+          
