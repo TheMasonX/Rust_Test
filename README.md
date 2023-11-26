@@ -4,4 +4,4 @@
 
 Simple test project to explore the Rust language and setting up modern CI/CD pipelines.
 
-[Library documentation](https://themasonx.github.io/Rust_Test/test_project/)
+[Library documentation](https://themasonx.github.io/Rust_Test/tmx_utils/)
