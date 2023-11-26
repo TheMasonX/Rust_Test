@@ -31,5 +31,5 @@ jobs:
       run: cargo clippy --verbose -- -D warnings
     - name: Audit
       run: cargo audit
-    - name: Copy Docs
-      run: ./deploy_docs.sh
+    #- name: Copy Docs
+    #  run: ./deploy_docs.sh
