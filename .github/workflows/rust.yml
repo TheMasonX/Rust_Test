@@ -32,4 +32,4 @@ jobs:
     - name: Audit
       run: cargo audit
     - name: Copy Docs
-      run: .\deploy_docs.bat
+      run: ./deploy_docs.sh
