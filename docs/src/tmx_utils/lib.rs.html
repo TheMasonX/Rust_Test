@@ -328,14 +328,16 @@
     /// use tmx_utils::string_ext::read_string;
     /// use std::io::BufReader;
     ///
+    /// let path = &quot;./run_file_test.txt&quot;;
+    /// let content = &quot;input_string&quot;;
     /// run_file_test(
     ///     |f| {
     ///         assert_eq!(
     ///             read_string(BufReader::new(f)).unwrap(),
-    ///             &quot;input_string&quot;
+    ///             content
     ///         );
     ///     },
-    ///     &quot;./run_file_test.txt&quot;, &quot;input_string&quot;,
+    ///     path, content,
     /// );
     /// ```
     </span><span class="kw">pub fn </span>run_file_test&lt;T&gt;(test: T, path: <span class="kw-2">&amp;</span>str, contents: <span class="kw-2">&amp;</span>str)
@@ -519,14 +521,16 @@
     /// use tmx_utils::test_utils::run_file_test;
     /// use std::io::BufReader;
     ///
+    /// let path = &quot;./read_string.txt&quot;;
+    /// let content = &quot;input_string&quot;;
     /// run_file_test(
     ///     |f| {
     ///         assert_eq!(
     ///             read_string(BufReader::new(f)).unwrap(),
-    ///             &quot;input_string&quot;
+    ///             content
     ///         );
     ///     },
-    ///     &quot;./read_string.txt&quot;, &quot;input_string&quot;,
+    ///     path, content,
     /// );
     /// ```
     </span><span class="kw">pub fn </span>read_string&lt;R&gt;(<span class="kw-2">mut </span>reader: R) -&gt; <span class="prelude-ty">Result</span>&lt;String, std::io::Error&gt;
@@ -580,19 +584,15 @@
         <span class="attr">#[test]
         </span><span class="kw">fn </span>test_read_input() {
             <span class="kw">use </span><span class="kw">super</span>::read_string;
-            <span class="kw">use </span>std::fs::File;
             <span class="kw">let </span>path = <span class="string">&quot;./test_read_input.txt&quot;</span>;
-            std::fs::write(path, <span class="string">&quot;input_string&quot;</span>).unwrap();
-            <span class="kw">let </span>file = <span class="kw">match </span>File::open(path) {
-                <span class="prelude-val">Ok</span>(f) =&gt; f,
-                <span class="prelude-val">Err</span>(e) =&gt; {
-                    std::fs::remove_file(path).unwrap();
-                    <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t open {}, deleting: {:?}&quot;</span>, path, e)
-                }
-            };
-            <span class="kw">let </span>result = read_string(<span class="kw-2">&amp;mut </span>std::io::BufReader::new(file));
-            std::fs::remove_file(path).unwrap(); <span class="comment">//Clean up
-            </span><span class="macro">assert_eq!</span>(result.unwrap(), <span class="string">&quot;input_string&quot;</span>);
+            <span class="kw">let </span>content = <span class="string">&quot;input_string&quot;</span>;
+            <span class="kw">crate</span>::test_utils::run_file_test(
+                |f| {
+                    <span class="macro">assert_eq!</span>(read_string(std::io::BufReader::new(f)).unwrap(), content);
+                },
+                path,
+                content,
+            )
         }
     }
 }

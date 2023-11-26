@@ -29,14 +29,16 @@ pub mod test_utils {
     /// use tmx_utils::string_ext::read_string;
     /// use std::io::BufReader;
     ///
+    /// let path = "./run_file_test.txt";
+    /// let content = "input_string";
     /// run_file_test(
     ///     |f| {
     ///         assert_eq!(
     ///             read_string(BufReader::new(f)).unwrap(),
-    ///             "input_string"
+    ///             content
     ///         );
     ///     },
-    ///     "./run_file_test.txt", "input_string",
+    ///     path, content,
     /// );
     /// ```
     pub fn run_file_test<T>(test: T, path: &str, contents: &str)
@@ -220,14 +222,16 @@ pub mod string_ext {
     /// use tmx_utils::test_utils::run_file_test;
     /// use std::io::BufReader;
     ///
+    /// let path = "./read_string.txt";
+    /// let content = "input_string";
     /// run_file_test(
     ///     |f| {
     ///         assert_eq!(
     ///             read_string(BufReader::new(f)).unwrap(),
-    ///             "input_string"
+    ///             content
     ///         );
     ///     },
-    ///     "./read_string.txt", "input_string",
+    ///     path, content,
     /// );
     /// ```
     pub fn read_string<R>(mut reader: R) -> Result<String, std::io::Error>
@@ -281,19 +285,15 @@ pub mod string_ext {
         #[test]
         fn test_read_input() {
             use super::read_string;
-            use std::fs::File;
             let path = "./test_read_input.txt";
-            std::fs::write(path, "input_string").unwrap();
-            let file = match File::open(path) {
-                Ok(f) => f,
-                Err(e) => {
-                    std::fs::remove_file(path).unwrap();
-                    panic!("Couldn't open {}, deleting: {:?}", path, e)
-                }
-            };
-            let result = read_string(&mut std::io::BufReader::new(file));
-            std::fs::remove_file(path).unwrap(); //Clean up
-            assert_eq!(result.unwrap(), "input_string");
+            let content = "input_string";
+            crate::test_utils::run_file_test(
+                |f| {
+                    assert_eq!(read_string(std::io::BufReader::new(f)).unwrap(), content);
+                },
+                path,
+                content,
+            )
         }
     }
 }
