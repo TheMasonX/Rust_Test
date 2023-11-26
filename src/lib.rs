@@ -23,31 +23,31 @@ pub mod string_ext {
     /// ```
     /// # use tmx_utils::string_ext::format_list;
     /// assert_eq!(format_list(
-    ///            vec![]),
+    ///            &vec![]),
     ///            "nothing");
     /// ```
     ///
     /// ```
     /// # use tmx_utils::{vec_string, string_ext::format_list};
-    /// assert_eq!(format_list(vec_string![
+    /// assert_eq!(format_list(&vec_string![
     ///            "Nona"]),
     ///            "Nona");
     /// ```
     ///
     /// ```
     /// # use tmx_utils::{vec_string, string_ext::format_list};
-    /// assert_eq!(format_list(vec_string![
+    /// assert_eq!(format_list(&vec_string![
     ///            "Nona", "Samantha"]),
     ///            "Nona and Samantha");
     /// ```
     ///
     /// ```
     /// # use tmx_utils::{vec_string, string_ext::format_list};
-    /// assert_eq!(format_list(vec_string![
+    /// assert_eq!(format_list(&vec_string![
     ///            "Nona", "Samantha", "Lucy", "Charles"]),
     ///            "Nona, Samantha, Lucy, and Charles");
     /// ```
-    pub fn format_list(list: Vec<String>) -> String {
+    pub fn format_list(list: &Vec<String>) -> String {
         let love_count: usize = list.len();
         let string_val: String = match love_count {
             0 => String::from("nothing"),
@@ -70,31 +70,31 @@ pub mod string_ext {
     /// ```
     /// # use tmx_utils::string_ext::format_list_slices;
     /// assert_eq!(format_list_slices(
-    ///            vec![]),
+    ///            &vec![]),
     ///            "nothing");
     /// ```
     ///
     /// ```
     /// # use tmx_utils::string_ext::format_list_slices;
-    /// assert_eq!(format_list_slices(vec![
+    /// assert_eq!(format_list_slices(&vec![
     ///            "Nona"]),
     ///            "Nona");
     /// ```
     ///
     /// ```
     /// # use tmx_utils::string_ext::format_list_slices;
-    /// assert_eq!(format_list_slices(vec![
+    /// assert_eq!(format_list_slices(&vec![
     ///            "Nona", "Samantha"]),
     ///            "Nona and Samantha");
     /// ```
     ///
     /// ```
     /// # use tmx_utils::string_ext::format_list_slices;
-    /// assert_eq!(format_list_slices(vec![
+    /// assert_eq!(format_list_slices(&vec![
     ///            "Nona", "Samantha", "Lucy", "Charles"]),
     ///            "Nona, Samantha, Lucy, and Charles");
     /// ```
-    pub fn format_list_slices(list: Vec<&str>) -> String {
+    pub fn format_list_slices(list: &Vec<&str>) -> String {
         let love_count: usize = list.len();
         let string_val: String = match love_count {
             0 => String::from("nothing"),
@@ -109,41 +109,110 @@ pub mod string_ext {
         string_val
     }
 
+    /// Reads a line from stdin and trims it. Returns an error if the line is empty or if an error is returned from `stdin().read_line()`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use tmx_utils::string_ext::read_string_stdin;
+    /// let e = read_string_stdin().err().unwrap();
+    /// assert!(e.kind() == std::io::ErrorKind::InvalidInput);
+    /// ```
+    pub fn read_string_stdin() -> Result<String, std::io::Error> {
+        read_string(&mut std::io::stdin().lock())
+    }
+
+    /// Reads a line from a reader and trims it. Returns io errors or an error if the line is empty.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use tmx_utils::string_ext::read_string;
+    /// let e = read_string(&mut std::io::stdin().lock()).err().unwrap();
+    /// assert!(e.kind() == std::io::ErrorKind::InvalidInput);
+    /// ```
+    ///
+    /// ```
+    /// # use tmx_utils::string_ext::read_string;
+    /// use std::fs::{File, write, remove_file};
+    /// use std::io::BufReader;
+    /// let path = "./test.txt";
+    /// write(path, "  input_string    ").unwrap(); //Create a file with extra spaces
+    /// let file = match File::open(path) {
+    ///     Ok(f) => f,
+    ///     Err(e) => {
+    ///         remove_file(path).unwrap(); //Clean up before panicking
+    ///         panic!("Couldn't open {}, deleting: {:?}", path, e)
+    ///     }
+    /// };
+    /// let result = read_string(&mut BufReader::new(file));
+    /// remove_file(path).unwrap(); //Clean up before asserting
+    /// assert_eq!(result.unwrap(), "input_string");
+    /// ```
+    pub fn read_string<R>(mut reader: R) -> Result<String, std::io::Error>
+    where
+        R: std::io::BufRead,
+    {
+        let mut input = String::new();
+        reader.read_line(&mut input)?;
+        let trimmed = input.trim();
+        match trimmed.len() {
+            0 => Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "Input was empty",
+            )),
+            _ => Ok(trimmed.to_string()),
+        }
+    }
+
     #[cfg(test)]
     mod tests {
         use super::*;
 
         #[test]
         fn test_format_list() {
-            assert_eq!(format_list(vec![]), "nothing");
-            assert_eq!(format_list(vec!["Nona".to_string()]), "Nona");
+            assert_eq!(format_list(&vec![]), "nothing");
+            assert_eq!(format_list(&vec_string!["Nona"]), "Nona");
             assert_eq!(
-                format_list(vec!["Nona".to_string(), "Samantha".to_string()]),
+                format_list(&vec_string!["Nona", "Samantha"]),
                 "Nona and Samantha"
             );
             assert_eq!(
-                format_list(vec![
-                    "Nona".to_string(),
-                    "Samantha".to_string(),
-                    "Lucy".to_string(),
-                    "Charles".to_string()
-                ]),
+                format_list(&vec_string!["Nona", "Samantha", "Lucy", "Charles"]),
                 "Nona, Samantha, Lucy, and Charles"
             );
         }
 
         #[test]
         fn test_format_list_slices() {
-            assert_eq!(format_list_slices(vec![]), "nothing");
-            assert_eq!(format_list_slices(vec!["Nona"]), "Nona");
+            assert_eq!(format_list_slices(&vec![]), "nothing");
+            assert_eq!(format_list_slices(&vec!["Nona"]), "Nona");
             assert_eq!(
-                format_list_slices(vec!["Nona", "Samantha"]),
+                format_list_slices(&vec!["Nona", "Samantha"]),
                 "Nona and Samantha"
             );
             assert_eq!(
-                format_list_slices(vec!["Nona", "Samantha", "Lucy", "Charles"]),
+                format_list_slices(&vec!["Nona", "Samantha", "Lucy", "Charles"]),
                 "Nona, Samantha, Lucy, and Charles"
             );
+        }
+
+        #[test]
+        fn test_read_input() {
+            use super::read_string;
+            use std::fs::File;
+            let path = "./test.txt";
+            std::fs::write(path, "input_string").unwrap();
+            let file = match File::open(path) {
+                Ok(f) => f,
+                Err(e) => {
+                    std::fs::remove_file(path).unwrap();
+                    panic!("Couldn't open {}, deleting: {:?}", path, e)
+                }
+            };
+            let result = read_string(&mut std::io::BufReader::new(file));
+            std::fs::remove_file(path).unwrap(); //Clean up
+            assert_eq!(result.unwrap(), "input_string");
         }
     }
 }
