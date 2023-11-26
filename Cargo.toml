@@ -1,6 +1,7 @@
 [package]
-name = "test_project"
+name = "tmx_utils"
 authors = ["TheMasonX"]
+description = "Mostly just an exploration of the Rust language and modern CI/CD practices, but I'll use it to include some common/useful utilities as I write them."
 version = "0.1.0"
 edition = "2021"
 

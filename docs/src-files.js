@@ -1,4 +1,4 @@
 var srcIndex = JSON.parse('{\
-"test_project":["",[],["lib.rs"]]\
+"tmx_utils":["",[],["lib.rs"]]\
 }');
 createSrcSidebar();

@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["test_project"];
+window.ALL_CRATES = ["tmx_utils"];
