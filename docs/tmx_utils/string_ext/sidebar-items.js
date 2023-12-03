@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["format_list","format_list_slices","read_string","read_string_stdin"]};
+window.SIDEBAR_ITEMS = {"fn":["format_list","format_list_slices","read_local_file","read_string","read_string_stdin"]};

@@ -207,7 +207,29 @@
 <a href="#207" id="207">207</a>
 <a href="#208" id="208">208</a>
 <a href="#209" id="209">209</a>
-</pre></div><pre class="rust"><code><span class="doccomment">/// Declares a `Vec&lt;String&gt;` and casts string literals from `&amp;str` to `String`
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>itertools::Itertools;
+
+<span class="doccomment">/// Declares a `Vec&lt;String&gt;` and casts string literals from `&amp;str` to `String`
 ///
 /// # Examples
 ///
@@ -252,19 +274,12 @@
 ///            &quot;Nona&quot;, &quot;Samantha&quot;, &quot;Lucy&quot;, &quot;Charles&quot;]),
 ///            &quot;Nona, Samantha, Lucy, and Charles&quot;);
 /// ```
-</span><span class="kw">pub fn </span>format_list(list: <span class="kw-2">&amp;</span>Vec&lt;String&gt;) -&gt; String {
-    <span class="kw">let </span>love_count: usize = list.len();
-    <span class="kw">let </span>string_val: String = <span class="kw">match </span>love_count {
-        <span class="number">0 </span>=&gt; String::from(<span class="string">&quot;nothing&quot;</span>),
-        <span class="number">1 </span>=&gt; list[<span class="number">0</span>].to_string(),
-        <span class="number">2 </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;{} and {}&quot;</span>, list[<span class="number">0</span>], list[<span class="number">1</span>]),
-        <span class="kw">_ </span>=&gt; <span class="macro">format!</span>(
-            <span class="string">&quot;{}, and {}&quot;</span>,
-            list[..love_count - <span class="number">1</span>].join(<span class="string">&quot;, &quot;</span>),
-            list[love_count - <span class="number">1</span>],
-        ),
-    };
-    string_val
+</span><span class="comment">// pub fn format_list(list: &amp;[String]) -&gt; String {
+//     format_list_slices(&amp;list.iter().map(|s| s as &amp;str).collect_vec())
+// }
+
+</span><span class="kw">pub fn </span>format_list(list: <span class="kw-2">&amp;</span>[String]) -&gt; String {
+    format_list_slices(<span class="kw-2">&amp;</span>list.iter().map(|s| s <span class="kw">as </span><span class="kw-2">&amp;</span>str).collect_vec())
 }
 
 <span class="doccomment">/// Formats a list of string slices with commas and &quot;and&quot; if necessary. Uses the oxford comma.&lt;br&gt;
@@ -275,7 +290,7 @@
 /// ```
 /// # use tmx_utils::string_ext::format_list_slices;
 /// assert_eq!(format_list_slices(
-///            &amp;vec![]),
+///            &amp;[]),
 ///            &quot;nothing&quot;);
 /// ```
 ///
@@ -288,18 +303,18 @@
 ///
 /// ```
 /// # use tmx_utils::string_ext::format_list_slices;
-/// assert_eq!(format_list_slices(&amp;vec![
+/// assert_eq!(format_list_slices(&amp;[
 ///            &quot;Nona&quot;, &quot;Samantha&quot;]),
 ///            &quot;Nona and Samantha&quot;);
 /// ```
 ///
 /// ```
 /// # use tmx_utils::string_ext::format_list_slices;
-/// assert_eq!(format_list_slices(&amp;vec![
+/// assert_eq!(format_list_slices(&amp;[
 ///            &quot;Nona&quot;, &quot;Samantha&quot;, &quot;Lucy&quot;, &quot;Charles&quot;]),
 ///            &quot;Nona, Samantha, Lucy, and Charles&quot;);
 /// ```
-</span><span class="kw">pub fn </span>format_list_slices(list: <span class="kw-2">&amp;</span>Vec&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; String {
+</span><span class="kw">pub fn </span>format_list_slices(list: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str]) -&gt; String {
     <span class="kw">let </span>love_count: usize = list.len();
     <span class="kw">let </span>string_val: String = <span class="kw">match </span>love_count {
         <span class="number">0 </span>=&gt; String::from(<span class="string">&quot;nothing&quot;</span>),
@@ -370,13 +385,38 @@
     }
 }
 
+<span class="doccomment">/// Reads a file from the current directory. Returns io errors or an error if the line is empty.
+///
+/// # Examples
+///
+/// ```
+/// # use tmx_utils::string_ext::read_local_file;
+/// let e = read_local_file(&quot;read_local_file.txt&quot;).unwrap_err();
+/// println!(&quot;{}&quot;, e.kind());
+/// assert_eq!(e.kind(), std::io::ErrorKind::NotFound); //Not a valid path
+/// ```
+///
+/// ```
+/// # use tmx_utils::string_ext::read_local_file;
+/// let e = read_local_file(&quot;src/main.rs&quot;).unwrap();
+/// assert!(e.len() &gt; 0);
+/// ```
+</span><span class="kw">pub fn </span>read_local_file(path: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;String, std::io::Error&gt; {
+    <span class="kw">let </span>input_file = <span class="macro">format!</span>(
+        <span class="string">&quot;{}/{}&quot;</span>,
+        std::env::current_dir()<span class="question-mark">?</span>.to_str().unwrap_or_default(),
+        path
+    );
+    std::fs::read_to_string(input_file)
+}
+
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_format_list() {
-        <span class="macro">assert_eq!</span>(format_list(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[]), <span class="string">&quot;nothing&quot;</span>);
+        <span class="macro">assert_eq!</span>(format_list(<span class="kw-2">&amp;</span>[]), <span class="string">&quot;nothing&quot;</span>);
         <span class="macro">assert_eq!</span>(format_list(<span class="kw-2">&amp;</span><span class="macro">vec_string!</span>[<span class="string">&quot;Nona&quot;</span>]), <span class="string">&quot;Nona&quot;</span>);
         <span class="macro">assert_eq!</span>(
             format_list(<span class="kw-2">&amp;</span><span class="macro">vec_string!</span>[<span class="string">&quot;Nona&quot;</span>, <span class="string">&quot;Samantha&quot;</span>]),
@@ -390,14 +430,14 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_format_list_slices() {
-        <span class="macro">assert_eq!</span>(format_list_slices(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[]), <span class="string">&quot;nothing&quot;</span>);
-        <span class="macro">assert_eq!</span>(format_list_slices(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[<span class="string">&quot;Nona&quot;</span>]), <span class="string">&quot;Nona&quot;</span>);
+        <span class="macro">assert_eq!</span>(format_list_slices(<span class="kw-2">&amp;</span>[]), <span class="string">&quot;nothing&quot;</span>);
+        <span class="macro">assert_eq!</span>(format_list_slices(<span class="kw-2">&amp;</span>[<span class="string">&quot;Nona&quot;</span>]), <span class="string">&quot;Nona&quot;</span>);
         <span class="macro">assert_eq!</span>(
-            format_list_slices(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[<span class="string">&quot;Nona&quot;</span>, <span class="string">&quot;Samantha&quot;</span>]),
+            format_list_slices(<span class="kw-2">&amp;</span>[<span class="string">&quot;Nona&quot;</span>, <span class="string">&quot;Samantha&quot;</span>]),
             <span class="string">&quot;Nona and Samantha&quot;
         </span>);
         <span class="macro">assert_eq!</span>(
-            format_list_slices(<span class="kw-2">&amp;</span><span class="macro">vec!</span>[<span class="string">&quot;Nona&quot;</span>, <span class="string">&quot;Samantha&quot;</span>, <span class="string">&quot;Lucy&quot;</span>, <span class="string">&quot;Charles&quot;</span>]),
+            format_list_slices(<span class="kw-2">&amp;</span>[<span class="string">&quot;Nona&quot;</span>, <span class="string">&quot;Samantha&quot;</span>, <span class="string">&quot;Lucy&quot;</span>, <span class="string">&quot;Charles&quot;</span>]),
             <span class="string">&quot;Nona, Samantha, Lucy, and Charles&quot;
         </span>);
     }

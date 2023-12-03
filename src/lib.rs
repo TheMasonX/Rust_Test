@@ -5,5 +5,8 @@
 /// String Extensions
 pub mod string_ext;
 
+/// Math Utilities
+pub mod math_utils;
+
 /// Test Utilities
 pub mod test_utils;

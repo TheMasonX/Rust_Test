@@ -1839,10 +1839,11 @@ checksum = "ef927ca75afb808a4d64dd374f00a2adf8d0fcff8e7b184af886c3c87ec4a3f3"
 
 [[package]]
 name = "tmx_utils"
-version = "0.1.2"
+version = "0.1.4"
 dependencies = [
  "cargo-watch",
  "itertools",
+ "num-traits",
 ]
 
 [[package]]
