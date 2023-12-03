@@ -9,5 +9,10 @@ license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.release]
+opt-level = 3
+symbols = false
+
 [dependencies]
 cargo-watch = "8.4.0"
+itertools = "0.12.0"

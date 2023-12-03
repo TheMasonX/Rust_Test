@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 /// Declares a `Vec<String>` and casts string literals from `&str` to `String`
 ///
 /// # Examples
@@ -43,19 +45,12 @@ macro_rules! vec_string {
 ///            "Nona", "Samantha", "Lucy", "Charles"]),
 ///            "Nona, Samantha, Lucy, and Charles");
 /// ```
-pub fn format_list(list: &Vec<String>) -> String {
-    let love_count: usize = list.len();
-    let string_val: String = match love_count {
-        0 => String::from("nothing"),
-        1 => list[0].to_string(),
-        2 => format!("{} and {}", list[0], list[1]),
-        _ => format!(
-            "{}, and {}",
-            list[..love_count - 1].join(", "),
-            list[love_count - 1],
-        ),
-    };
-    string_val
+// pub fn format_list(list: &[String]) -> String {
+//     format_list_slices(&list.iter().map(|s| s as &str).collect_vec())
+// }
+
+pub fn format_list(list: &[String]) -> String {
+    format_list_slices(&list.iter().map(|s| s as &str).collect_vec())
 }
 
 /// Formats a list of string slices with commas and "and" if necessary. Uses the oxford comma.<br>
@@ -66,7 +61,7 @@ pub fn format_list(list: &Vec<String>) -> String {
 /// ```
 /// # use tmx_utils::string_ext::format_list_slices;
 /// assert_eq!(format_list_slices(
-///            &vec![]),
+///            &[]),
 ///            "nothing");
 /// ```
 ///
@@ -79,18 +74,18 @@ pub fn format_list(list: &Vec<String>) -> String {
 ///
 /// ```
 /// # use tmx_utils::string_ext::format_list_slices;
-/// assert_eq!(format_list_slices(&vec![
+/// assert_eq!(format_list_slices(&[
 ///            "Nona", "Samantha"]),
 ///            "Nona and Samantha");
 /// ```
 ///
 /// ```
 /// # use tmx_utils::string_ext::format_list_slices;
-/// assert_eq!(format_list_slices(&vec![
+/// assert_eq!(format_list_slices(&[
 ///            "Nona", "Samantha", "Lucy", "Charles"]),
 ///            "Nona, Samantha, Lucy, and Charles");
 /// ```
-pub fn format_list_slices(list: &Vec<&str>) -> String {
+pub fn format_list_slices(list: &[&str]) -> String {
     let love_count: usize = list.len();
     let string_val: String = match love_count {
         0 => String::from("nothing"),
@@ -161,13 +156,38 @@ where
     }
 }
 
+/// Reads a file from the current directory. Returns io errors or an error if the line is empty.
+///
+/// # Examples
+///
+/// ```
+/// # use tmx_utils::string_ext::read_local_file;
+/// let e = read_local_file("read_local_file.txt").unwrap_err();
+/// println!("{}", e.kind());
+/// assert_eq!(e.kind(), std::io::ErrorKind::NotFound); //Not a valid path
+/// ```
+///
+/// ```
+/// # use tmx_utils::string_ext::read_local_file;
+/// let e = read_local_file("src/main.rs").unwrap();
+/// assert!(e.len() > 0);
+/// ```
+pub fn read_local_file(path: &str) -> Result<String, std::io::Error> {
+    let input_file = format!(
+        "{}/{}",
+        std::env::current_dir()?.to_str().unwrap_or_default(),
+        path
+    );
+    std::fs::read_to_string(input_file)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_format_list() {
-        assert_eq!(format_list(&vec![]), "nothing");
+        assert_eq!(format_list(&[]), "nothing");
         assert_eq!(format_list(&vec_string!["Nona"]), "Nona");
         assert_eq!(
             format_list(&vec_string!["Nona", "Samantha"]),
@@ -181,14 +201,14 @@ mod tests {
 
     #[test]
     fn test_format_list_slices() {
-        assert_eq!(format_list_slices(&vec![]), "nothing");
-        assert_eq!(format_list_slices(&vec!["Nona"]), "Nona");
+        assert_eq!(format_list_slices(&[]), "nothing");
+        assert_eq!(format_list_slices(&["Nona"]), "Nona");
         assert_eq!(
-            format_list_slices(&vec!["Nona", "Samantha"]),
+            format_list_slices(&["Nona", "Samantha"]),
             "Nona and Samantha"
         );
         assert_eq!(
-            format_list_slices(&vec!["Nona", "Samantha", "Lucy", "Charles"]),
+            format_list_slices(&["Nona", "Samantha", "Lucy", "Charles"]),
             "Nona, Samantha, Lucy, and Charles"
         );
     }
